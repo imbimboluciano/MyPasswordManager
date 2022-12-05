@@ -2,8 +2,12 @@ package login;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.Random;
+import java.util.random.RandomGenerator;
 
 public class LoginPanel extends JPanel {
 
@@ -12,12 +16,28 @@ public class LoginPanel extends JPanel {
     private JPasswordField fieldPassword;
     private JLabel icon;
 
+    private LoginListener loginListener;
+
     public LoginPanel() {
 
         setLayout(new GridBagLayout());
 
 
         logIn = new JButton("Log In");
+
+        logIn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String password  = String.valueOf(fieldPassword.getPassword());
+                User actualUser = new User(this, RandomGenerator.getDefault().nextInt(), fieldEmail.getText(),password);
+                fieldEmail.setText("email@example.it");
+                fieldPassword.setText("");
+
+                if(loginListener != null){
+                    loginListener.LoginEventListener(actualUser);
+                }
+            }
+        });
         fieldEmail = new JTextField("email@example.it",20);
         fieldPassword = new JPasswordField("",20);
 
@@ -98,5 +118,9 @@ public class LoginPanel extends JPanel {
 
         add(logIn,gbc);
 
+    }
+
+    public void setLoginEvent(LoginListener loginListener){
+        this.loginListener = loginListener;
     }
 }
