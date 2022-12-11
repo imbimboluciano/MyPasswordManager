@@ -9,6 +9,10 @@ public class DashboardFrame extends JFrame {
     private String actualUser;
 
     private LeftPanel leftPanel;
+
+    private PasswordPanel passwordPanel;
+    private GeneratorePanel generatorePanel;
+    private int actualPanel;
     public DashboardFrame(String actualUser) throws HeadlessException {
 
         super("MyPasswordManager");
@@ -18,9 +22,38 @@ public class DashboardFrame extends JFrame {
         setLayout(new BorderLayout());
 
         leftPanel = new LeftPanel(actualUser);
-
+        passwordPanel = new PasswordPanel();
 
         add(leftPanel,BorderLayout.LINE_START);
+        add(passwordPanel,BorderLayout.CENTER);
+
+        actualPanel = 0;
+
+        leftPanel.setLeftPanelEvent(new LeftPanelListener() {
+            @Override
+            public void LeftPanelEventListener(String text) {
+                if(text.equals("Archivio")){
+                    passwordPanel = new PasswordPanel();
+                    add(passwordPanel,BorderLayout.CENTER);
+                    validate();
+
+                } else if (text.equals("Generatore")) {
+                    generatorePanel = new GeneratorePanel();
+                    add(generatorePanel,BorderLayout.CENTER);
+                    validate();
+                    
+                } else if (text.equals("Settings")) {
+                    
+                }
+            }
+        });
+
+
+
+
+
+
+
 
         setSize(1200,800);
 

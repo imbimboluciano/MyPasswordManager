@@ -1,7 +1,10 @@
 package dashboard;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class NavigationPanel extends JPanel {
 
@@ -11,6 +14,8 @@ public class NavigationPanel extends JPanel {
     private JLabel iconGeneratore;
     private JLabel iconSettings;
     private JLabel labelSettings;
+
+    private NavigationListener navigationListener;
 
 
 
@@ -32,6 +37,33 @@ public class NavigationPanel extends JPanel {
         labelSettings = new JLabel("Impostazioni");
         labelSettings.setFont(new Font(null,0,18));
 
+        labelArchivio.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+               if (navigationListener != null){
+                   navigationListener.NavigationEventListener(labelArchivio.getText());
+               }
+            }
+        });
+
+        labelGeneratore.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (navigationListener != null){
+                    navigationListener.NavigationEventListener(labelGeneratore.getText());
+                }
+            }
+        });
+
+        labelSettings.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(navigationListener != null){
+                    navigationListener.NavigationEventListener(labelSettings.getText());
+                }
+            }
+        });
+
 
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -40,10 +72,8 @@ public class NavigationPanel extends JPanel {
         gbc.gridx = 0;
         gbc.gridy = 0;
 
-        gbc.weightx = 0.01;
-        gbc.weighty = 0.01;
         gbc.anchor = GridBagConstraints.LINE_END;
-        gbc.insets = new Insets(0,5,0,5);
+        gbc.insets = new Insets(0,5,10,5);
 
         add(iconArchivio,gbc);
 
@@ -51,19 +81,17 @@ public class NavigationPanel extends JPanel {
         gbc.gridx = 1;
         gbc.gridy = 0;
 
-        gbc.weightx = 0.01;
-        gbc.weighty = 0.01;
+
         gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = new Insets(0,0,10,0);
 
         add(labelArchivio,gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
 
-        gbc.weightx = 0.01;
-        gbc.weighty = 0.01;
         gbc.anchor = GridBagConstraints.LINE_END;
-        gbc.insets = new Insets(0,5,0,5);
+        gbc.insets = new Insets(0,5,10,5);
 
         add(iconGeneratore,gbc);
 
@@ -71,19 +99,16 @@ public class NavigationPanel extends JPanel {
         gbc.gridx = 1;
         gbc.gridy = 1;
 
-        gbc.weightx = 0.01;
-        gbc.weighty = 0.01;
         gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = new Insets(0,0,10,0);
 
         add(labelGeneratore,gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
 
-        gbc.weightx = 0.01;
-        gbc.weighty = 0.01;
         gbc.anchor = GridBagConstraints.LINE_END;
-        gbc.insets = new Insets(0,5,0,5);
+        gbc.insets = new Insets(0,5,10,5);
 
         add(iconSettings,gbc);
 
@@ -91,14 +116,15 @@ public class NavigationPanel extends JPanel {
         gbc.gridx = 1;
         gbc.gridy = 2;
 
-        gbc.weightx = 0.5;
-        gbc.weighty = 0.5;
         gbc.anchor = GridBagConstraints.LINE_START;
-
+        gbc.insets = new Insets(0,0,10,0);
         add(labelSettings,gbc);
 
 
 
+    }
 
+    public void setNavigationEvent(NavigationListener navigationListener){
+        this.navigationListener  = navigationListener;
     }
 }

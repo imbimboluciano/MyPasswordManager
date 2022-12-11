@@ -1,7 +1,5 @@
 package dashboard;
 
-import login.User;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,6 +11,9 @@ public class LeftPanel extends JPanel {
 
     private UserPanel userPanel;
     private NavigationPanel navigationPanel;
+    private FooterPanel footerPanel;
+
+    private LeftPanelListener leftPanelListener;
 
     public LeftPanel(String actualUser) {
 
@@ -26,12 +27,29 @@ public class LeftPanel extends JPanel {
 
         userPanel = new UserPanel(this.actualUser);
         navigationPanel = new NavigationPanel();
+        footerPanel = new FooterPanel();
+
+        navigationPanel.setNavigationEvent(new NavigationListener() {
+            @Override
+            public void NavigationEventListener(String text) {
+                if(leftPanelListener != null){
+                    leftPanelListener.LeftPanelEventListener(text);
+                }
+
+            }
+        });
 
 
         add(userPanel,BorderLayout.PAGE_START);
         add(navigationPanel,BorderLayout.CENTER);
+        add(footerPanel,BorderLayout.PAGE_END);
 
 
 
+
+    }
+
+    public void setLeftPanelEvent(LeftPanelListener leftPanelListener){
+        this.leftPanelListener = leftPanelListener;
     }
 }
