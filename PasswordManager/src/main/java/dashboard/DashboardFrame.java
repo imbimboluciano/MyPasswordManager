@@ -2,6 +2,9 @@ package dashboard;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class DashboardFrame extends JFrame {
 
@@ -12,20 +15,28 @@ public class DashboardFrame extends JFrame {
 
     private PasswordPanel passwordPanel;
     private GeneratorePanel generatorePanel;
+    private SettingsPanel settingsPanel;
     private int actualPanel;
+    private List<JPanel> panels;
     public DashboardFrame(String actualUser) throws HeadlessException {
 
         super("MyPasswordManager");
         this.actualUser = actualUser;
-
+        panels = new ArrayList<>();
 
         setLayout(new BorderLayout());
 
         leftPanel = new LeftPanel(actualUser);
         passwordPanel = new PasswordPanel();
+        generatorePanel = new GeneratorePanel();
+        settingsPanel = new SettingsPanel();
 
         add(leftPanel,BorderLayout.LINE_START);
         add(passwordPanel,BorderLayout.CENTER);
+
+        panels.add(passwordPanel);
+        panels.add(generatorePanel);
+        panels.add(settingsPanel);
 
         actualPanel = 0;
 
@@ -33,17 +44,40 @@ public class DashboardFrame extends JFrame {
             @Override
             public void LeftPanelEventListener(String text) {
                 if(text.equals("Archivio")){
-                    passwordPanel = new PasswordPanel();
-                    add(passwordPanel,BorderLayout.CENTER);
-                    validate();
-
+                   if(actualPanel != 0){
+                       remove(panels.get(actualPanel));
+                       actualPanel = 0;
+                       remove(panels.get(actualPanel));
+                       passwordPanel = new PasswordPanel();
+                       panels.add(actualPanel,passwordPanel);
+                       add(panels.get(actualPanel),BorderLayout.CENTER);
+                       revalidate();
+                       repaint();
+                   }
                 } else if (text.equals("Generatore")) {
-                    generatorePanel = new GeneratorePanel();
-                    add(generatorePanel,BorderLayout.CENTER);
-                    validate();
+                    if(actualPanel != 1){
+                        remove(panels.get(actualPanel));
+                        actualPanel = 1;
+                        remove(panels.get(actualPanel));
+                        generatorePanel = new GeneratorePanel();
+                        panels.add(actualPanel,generatorePanel);
+                        add(panels.get(actualPanel),BorderLayout.CENTER);
+                        revalidate();
+                        repaint();
+                    }
+
                     
-                } else if (text.equals("Settings")) {
-                    
+                } else if (text.equals("Impostazioni")) {
+                    if(actualPanel != 2){
+                        remove(panels.get(actualPanel));
+                        actualPanel = 2;
+                        remove(panels.get(actualPanel));
+                        settingsPanel = new SettingsPanel();
+                        panels.add(actualPanel,settingsPanel);
+                        add(panels.get(actualPanel),BorderLayout.CENTER);
+                        revalidate();
+                        repaint();
+                    }
                 }
             }
         });

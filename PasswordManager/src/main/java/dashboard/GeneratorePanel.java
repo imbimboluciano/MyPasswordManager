@@ -6,7 +6,14 @@ import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.tools.Tool;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -16,9 +23,14 @@ import static org.passay.DigestDictionaryRule.ERROR_CODE;
 
 public class GeneratorePanel extends JPanel {
 
+    private JLabel title;
 
+    private JPanel optionPanel;
+    private JPanel newPasswordPanel;
+    private JPanel titlePanel;
     private JSlider sliderLunghezza;
     private JLabel labelLunghezza;
+    private JLabel labelValueSlider;
 
     private JLabel labelLettereMaiuscole;
     private JCheckBox lettereMaiuscole;
@@ -35,9 +47,6 @@ public class GeneratorePanel extends JPanel {
     private JLabel labelQuantitaLettereMaiuscole;
     private JSpinner spinnerQuantitaLettereMaiuscole;
 
-    private JLabel labelQuantitaLettereMinuscole;
-    private JSpinner spinnerQuantitaLettereMinuscole;
-
     private JLabel labelQuantitaNumeri;
     private JSpinner spinnerQuantitaNumeri;
 
@@ -45,15 +54,35 @@ public class GeneratorePanel extends JPanel {
     private JSpinner spinnerQuantitaSimboli;
 
     private JButton btGenera;
+    private JButton btCopiaPassword;
 
-    private JLabel newPassword;
+    private JTextArea newPassword;
 
+    private final String errorPass = "Errore:Non è stato possibile generare la password";
     public GeneratorePanel() {
 
 
-        setLayout(new GridBagLayout());
+        setLayout(new BorderLayout());
 
-        sliderLunghezza = new JSlider(SwingConstants.HORIZONTAL,5,100,8);
+        titlePanel = new JPanel();
+        optionPanel = new JPanel();
+        newPasswordPanel = new JPanel();
+
+
+        optionPanel.setLayout(new GridBagLayout());
+        newPasswordPanel.setLayout(new GridBagLayout());
+        titlePanel.setLayout(new GridBagLayout());
+
+        optionPanel.setPreferredSize(new Dimension(300,250));
+        newPasswordPanel.setPreferredSize(new Dimension(300,300));
+
+        add(optionPanel,BorderLayout.CENTER);
+        add(newPasswordPanel,BorderLayout.PAGE_END);
+        add(titlePanel,BorderLayout.PAGE_START);
+
+        newPasswordPanel.setBorder(new EmptyBorder(new Insets(0,0,80,0)));
+
+        sliderLunghezza = new JSlider(SwingConstants.HORIZONTAL,5,65,8);
         labelLunghezza = new JLabel("Lunghezza Password");
 
         labelLettereMaiuscole = new JLabel("Lettere Maiuscole (A-Z)");
@@ -61,44 +90,70 @@ public class GeneratorePanel extends JPanel {
         labelNumeri = new JLabel("Numeri (0-9)");
         labelSimboli = new JLabel("Caratteri speciali (!@#$%^&*()_+)");
         labelQuantitaLettereMaiuscole = new JLabel("Numero di lettere maiuscole:");
-        labelQuantitaLettereMinuscole = new JLabel("Numero di lettere minuscole:");
         labelQuantitaNumeri = new JLabel("Numero di cifre:");
         labelQuantitaSimboli = new JLabel("Numero di caratter speciali:");
-        newPassword = new JLabel("");
+        title = new JLabel("Generatore Password");
+        title.setFont(new Font("Serif",Font.BOLD,30));
+        labelValueSlider = new JLabel("Value: " + sliderLunghezza.getValue());
+
+
 
         labelQuantitaLettereMaiuscole.setVisible(false);
-        labelQuantitaLettereMinuscole.setVisible(false);
         labelQuantitaSimboli.setVisible(false);
         labelQuantitaNumeri.setVisible(false);
 
 
         lettereMaiuscole = new JCheckBox();
-        lettereMinuscole = new JCheckBox();
+        lettereMinuscole = new JCheckBox("",true);
         numeri = new JCheckBox();
         simboli = new JCheckBox();
 
-        spinnerQuantitaLettereMaiuscole = new JSpinner(new SpinnerNumberModel(1,1,sliderLunghezza.getValue(),1));
-        spinnerQuantitaLettereMinuscole = new JSpinner(new SpinnerNumberModel(1,1,sliderLunghezza.getValue(),1));
-        spinnerQuantitaNumeri = new JSpinner(new SpinnerNumberModel(1,1,sliderLunghezza.getValue(),1));
+        lettereMinuscole.setEnabled(false);
+
+        spinnerQuantitaLettereMaiuscole = new JSpinner(new SpinnerNumberModel(1,1,sliderLunghezza.getValue() - 1,1));
+        spinnerQuantitaNumeri = new JSpinner(new SpinnerNumberModel(1,1,sliderLunghezza.getValue() ,1));
         spinnerQuantitaSimboli = new JSpinner(new SpinnerNumberModel(1,1,sliderLunghezza.getValue(),1));
 
-        spinnerQuantitaLettereMinuscole.setVisible(false);
+
         spinnerQuantitaLettereMaiuscole.setVisible(false);
         spinnerQuantitaNumeri.setVisible(false);
         spinnerQuantitaSimboli.setVisible(false);
 
         btGenera = new JButton("Genera Password");
+        btCopiaPassword = new JButton("Copia Password");
+
+        newPassword = new JTextArea(generatePassayPassword());
+        newPassword.setFont(new Font("Serif",Font.BOLD,20));
 
         btGenera.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                     String newPass = generatePassayPassword();
                     if(newPass.equals("")){
-                        newPassword.setText("Non è stato possibile generare una password");
+                        newPassword.setText(errorPass);
+                        newPassword.setFont(new Font("Serif",Font.BOLD,15));
                     }else{
                         newPassword.setText(newPass);
+                        newPassword.setFont(new Font("Serif",Font.BOLD,20));
                     }
 
+            }
+        });
+
+        btCopiaPassword.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!newPassword.getText().equals(errorPass)){
+                    copyStringToClipboard(newPassword.getText());
+                }
+            }
+        });
+
+        sliderLunghezza.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                labelValueSlider.setText("Value:" + ((JSlider) e.getSource()).getValue());
+                spinnerQuantitaLettereMaiuscole.setModel(new SpinnerNumberModel(1,1,(((JSlider) e.getSource()).getValue() - 1),1));
             }
         });
 
@@ -106,137 +161,168 @@ public class GeneratorePanel extends JPanel {
         checkBoxEvent();
 
 
+
+
         GridBagConstraints gbc = new GridBagConstraints();
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-
-        gbc.anchor = GridBagConstraints.LINE_START;
-        add(labelLunghezza,gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
+
         gbc.anchor = GridBagConstraints.CENTER;
 
-        add(sliderLunghezza,gbc);
+        optionPanel.add(labelValueSlider,gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.LINE_START;
 
-        add(labelLettereMaiuscole,gbc);
+        gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = (new Insets(0,0,25,0));
+
+        optionPanel.add(labelLunghezza,gbc);
+
 
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = (new Insets(0,0,25,0));
 
-        add(lettereMaiuscole,gbc);
+        optionPanel.add(sliderLunghezza,gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = (new Insets(5,0,5,0));
 
-        add(labelQuantitaLettereMaiuscole,gbc);
+        optionPanel.add(labelLettereMinuscole,gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = (new Insets(5,0,5,0));
 
-        add(spinnerQuantitaLettereMaiuscole,gbc);
+        optionPanel.add(lettereMinuscole,gbc);
 
 
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = (new Insets(5,0,5,0));
 
-        add(labelLettereMinuscole,gbc);
+        optionPanel.add(labelLettereMaiuscole,gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = (new Insets(5,0,5,0));
 
-        add(lettereMinuscole,gbc);
+        optionPanel.add(lettereMaiuscole,gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = (new Insets(5,0,8,0));
 
-        add(labelQuantitaLettereMinuscole,gbc);
+        optionPanel.add(labelQuantitaLettereMaiuscole,gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = (new Insets(5,0,8,0));
 
-        add(spinnerQuantitaLettereMinuscole,gbc);
+        optionPanel.add(spinnerQuantitaLettereMaiuscole,gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = (new Insets(5,0,5,0));
 
-        add(labelNumeri,gbc);
+        optionPanel.add(labelNumeri,gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 5;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = (new Insets(5,0,5,0));
 
-        add(numeri,gbc);
+        optionPanel.add(numeri,gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 6;
         gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = (new Insets(5,0,8,0));
 
-        add(labelQuantitaNumeri,gbc);
+        optionPanel.add(labelQuantitaNumeri,gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 6;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = (new Insets(5,0,5,0));
 
-        add(spinnerQuantitaNumeri,gbc);
+        optionPanel.add(spinnerQuantitaNumeri,gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 7;
         gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = (new Insets(5,0,5,0));
 
-        add(labelSimboli,gbc);
+        optionPanel.add(labelSimboli,gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 7;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = (new Insets(5,0,5,0));
 
-        add(simboli,gbc);
+        optionPanel.add(simboli,gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 8;
         gbc.anchor = GridBagConstraints.LINE_START;
+        gbc.insets = (new Insets(5,0,8,0));
 
-        add(labelQuantitaSimboli,gbc);
+        optionPanel.add(labelQuantitaSimboli,gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 8;
         gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = (new Insets(5,0,8,0));
 
-        add(spinnerQuantitaSimboli,gbc);
+        optionPanel.add(spinnerQuantitaSimboli,gbc);
 
 
         gbc.gridx = 0;
         gbc.gridy = 9;
         gbc.anchor = GridBagConstraints.PAGE_START;
         gbc.gridwidth = 2;
+        gbc.insets = new Insets(10,0,10,0);
 
-        add(btGenera,gbc);
+        optionPanel.add(btGenera,gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 10;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.PAGE_START;
+        gbc.insets = new Insets(0,0,10,0);
+        gbc.ipady = 30;
+
+
+        newPasswordPanel.add(newPassword,gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.PAGE_START;
+        gbc.insets = new Insets(10,0,10,0);
+        gbc.ipady = 0;
+        gbc.ipadx = 0;
+
+        newPasswordPanel.add(btCopiaPassword,gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.gridwidth = 2;
+        gbc.insets = new Insets(60,0,0,0);
+        gbc.ipady = 0;
+        gbc.ipadx = 0;
 
-        add(newPassword,gbc);
-
-
-
-
-
-
+        titlePanel.add(title,gbc);
 
     }
 
@@ -248,14 +334,6 @@ public class GeneratorePanel extends JPanel {
 
                 labelQuantitaLettereMaiuscole.setVisible(lettereMaiuscole.isSelected());
                 spinnerQuantitaLettereMaiuscole.setVisible(lettereMaiuscole.isSelected());
-            }
-        });
-
-        lettereMinuscole.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                labelQuantitaLettereMinuscole.setVisible((lettereMinuscole.isSelected()));
-                spinnerQuantitaLettereMinuscole.setVisible(lettereMinuscole.isSelected());
             }
         });
 
@@ -280,29 +358,27 @@ public class GeneratorePanel extends JPanel {
     public String generatePassayPassword() {
 
         List<CharacterRule> rules = new ArrayList<>();
+        int nMaiuscole = 0;
+        int nNumeri = 0;
+        int nSimboli = 0;
 
         PasswordGenerator gen = new PasswordGenerator();
 
         if(lettereMaiuscole.isSelected()){
             CharacterData upperCaseChars = EnglishCharacterData.UpperCase;
             CharacterRule upperCaseRule = new CharacterRule(upperCaseChars);
-            upperCaseRule.setNumberOfCharacters((Integer) spinnerQuantitaLettereMaiuscole.getValue());
+            nMaiuscole = (Integer) spinnerQuantitaLettereMaiuscole.getValue();
+            upperCaseRule.setNumberOfCharacters(nMaiuscole);
             rules.add(upperCaseRule);
 
-        }
 
-        if(lettereMinuscole.isSelected()){
-            CharacterData lowerCaseChars = EnglishCharacterData.LowerCase;
-            CharacterRule lowerCaseRule = new CharacterRule(lowerCaseChars);
-            lowerCaseRule.setNumberOfCharacters((Integer) spinnerQuantitaLettereMinuscole.getValue());
-            rules.add(lowerCaseRule);
         }
-
 
         if(numeri.isSelected()){
             CharacterData digitChars = EnglishCharacterData.Digit;
             CharacterRule digitRule = new CharacterRule(digitChars);
-            digitRule.setNumberOfCharacters((Integer) spinnerQuantitaNumeri.getValue());
+            nNumeri = (Integer) spinnerQuantitaNumeri.getValue();
+            digitRule.setNumberOfCharacters(nNumeri);
             rules.add(digitRule);
         }
 
@@ -317,20 +393,27 @@ public class GeneratorePanel extends JPanel {
                 }
             };
             CharacterRule splCharRule = new CharacterRule(specialChars);
-            splCharRule.setNumberOfCharacters((Integer) spinnerQuantitaSimboli.getValue());
+            nSimboli = (Integer) spinnerQuantitaSimboli.getValue();
+            splCharRule.setNumberOfCharacters(nSimboli);
             rules.add(splCharRule);
         }
 
 
+        CharacterData lowerCaseChars = EnglishCharacterData.LowerCase;
+        CharacterRule lowerCaseRule = new CharacterRule(lowerCaseChars);
+        lowerCaseRule.setNumberOfCharacters(sliderLunghezza.getValue() - nMaiuscole - nNumeri - nSimboli);
+        rules.add(lowerCaseRule);
 
 
 
-        if(!rules.isEmpty()){
-            return gen.generatePassword(sliderLunghezza.getValue(),rules);
-        }
+        return gen.generatePassword(sliderLunghezza.getValue(),rules);
 
-        return "";
     }
 
+
+    public static void copyStringToClipboard(String str){
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(new StringSelection(str),null);
+    }
 
 }

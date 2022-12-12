@@ -7,6 +7,6 @@ public class PasswordPanel extends JPanel {
 
     public PasswordPanel() {
 
-        setBackground(Color.CYAN);
+
     }
 }
