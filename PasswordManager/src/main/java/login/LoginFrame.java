@@ -42,12 +42,14 @@ public class LoginFrame extends JFrame {
                 PreparedStatement statement = null;
                 User u;
                 try {
-                    String sql = "SELECT email,password FROM utenti WHERE email= ?";
+                    String sql = "SELECT * FROM utenti WHERE email=?";
                     statement = DBManager.getConnection().prepareStatement(sql, ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
                     statement.setString(1,e.getEmail());
                     users = statement.executeQuery();
                     users.first();
-                    u = new User(this,1, users.getString(1),users.getString(2) );
+
+                    u = new User(this,users.getInt(1), users.getString(2),users.getString(3) );
+                    System.out.println(u.toString());
 
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);

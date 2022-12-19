@@ -18,7 +18,7 @@ public class TestDashboard {
                 }
                 UIManager.put("Button.arc",10);
                 UIManager.put("TextComponent.arc",0);
-                new DashboardFrame("example@email.it");
+                new DashboardFrame("luciano@email.it");
             }
         });
     }

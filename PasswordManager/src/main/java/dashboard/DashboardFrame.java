@@ -1,7 +1,13 @@
 package dashboard;
 
+import login.User;
+import utils.DBManager;
+
 import javax.swing.*;
 import java.awt.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -18,10 +24,16 @@ public class DashboardFrame extends JFrame {
     private SettingsPanel settingsPanel;
     private int actualPanel;
     private List<JPanel> panels;
+
+    private ResultSet passwords;
     public DashboardFrame(String actualUser) throws HeadlessException {
 
         super("MyPasswordManager");
         this.actualUser = actualUser;
+
+        initData();
+
+
         panels = new ArrayList<>();
 
         setLayout(new BorderLayout());
@@ -97,5 +109,25 @@ public class DashboardFrame extends JFrame {
         setResizable(false); // rendere la finestra non resizable
 
         setVisible(true); // per rendere visibile la finestra
+    }
+
+    public void initData(){
+        DBManager.setConnection(DBManager.JBDC_Driver_MariaDB,DBManager.JDBC_URL_MariaDB);
+        PreparedStatement statement = null;
+        try {
+            String sql = "SELECT * FROM password";
+            statement = DBManager.getConnection().prepareStatement(sql, ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
+            passwords = statement.executeQuery();
+            passwords.first();
+
+
+            MyPassword p = new MyPassword(passwords.getInt(1),passwords.getString(2),passwords.getString(3),passwords.getString(4),passwords.getString(5));
+
+            System.out.println(p.toString());
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
