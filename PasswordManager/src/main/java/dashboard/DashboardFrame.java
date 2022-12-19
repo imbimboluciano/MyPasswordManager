@@ -26,12 +26,16 @@ public class DashboardFrame extends JFrame {
     private List<JPanel> panels;
 
     private ResultSet passwords;
+    private List<MyPassword> passwordList;
     public DashboardFrame(String actualUser) throws HeadlessException {
 
         super("MyPasswordManager");
         this.actualUser = actualUser;
 
+        passwordList = new ArrayList<>();
+
         initData();
+
 
 
         panels = new ArrayList<>();
@@ -39,7 +43,7 @@ public class DashboardFrame extends JFrame {
         setLayout(new BorderLayout());
 
         leftPanel = new LeftPanel(actualUser);
-        passwordPanel = new PasswordPanel();
+        passwordPanel = new PasswordPanel(passwordList);
         generatorePanel = new GeneratorePanel();
         settingsPanel = new SettingsPanel();
 
@@ -60,7 +64,7 @@ public class DashboardFrame extends JFrame {
                        remove(panels.get(actualPanel));
                        actualPanel = 0;
                        remove(panels.get(actualPanel));
-                       passwordPanel = new PasswordPanel();
+                       passwordPanel = new PasswordPanel(passwordList);
                        panels.add(actualPanel,passwordPanel);
                        add(panels.get(actualPanel),BorderLayout.CENTER);
                        revalidate();
@@ -115,15 +119,28 @@ public class DashboardFrame extends JFrame {
         DBManager.setConnection(DBManager.JBDC_Driver_MariaDB,DBManager.JDBC_URL_MariaDB);
         PreparedStatement statement = null;
         try {
-            String sql = "SELECT * FROM password";
+            String sql = "SELECT * FROM password WHERE fk_utente = ?";
             statement = DBManager.getConnection().prepareStatement(sql, ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
+            statement.setString(1,actualUser);
             passwords = statement.executeQuery();
-            passwords.first();
+
+            while (passwords.next()){
+                System.out.println();
+                passwordList.add(new MyPassword(passwords.getInt(1),
+                                                passwords.getString(2),
+                                                passwords.getString(3),
+                                                passwords.getString(4),
+                                                passwords.getString(5)));
 
 
-            MyPassword p = new MyPassword(passwords.getInt(1),passwords.getString(2),passwords.getString(3),passwords.getString(4),passwords.getString(5));
+            }
 
-            System.out.println(p.toString());
+            for (MyPassword i:
+                passwordList ) {
+                System.out.println(i.toString());
+            }
+
+
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

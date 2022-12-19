@@ -16,6 +16,11 @@ public class MyPassword {
         Url = url;
     }
 
+    public MyPassword(String nome, String url) {
+        this.nome = nome;
+        Url = url;
+    }
+
     public int getId() {
         return id;
     }
